@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "tools.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -28,11 +29,23 @@ public:
   ///* state covariance matrix
   MatrixXd P_;
 
+  ///* TODO: augmented state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate FIXME FIXME] in SI units and rad
+  VectorXd x_aug_;
+
+  ///* TODO: augmented state covariance matrix
+  MatrixXd P_aug_;
+
+  ///* TODO: augmented sigma points matrix
+  MatrixXd Xsig_aug_;
+
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
 
   ///* time when the state is true, in us
   long long time_us_;
+
+  ///* TODO: not needed?
+  double previous_timestamp_;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -57,6 +70,7 @@ public:
 
   ///* Weights of sigma points
   VectorXd weights_;
+  double sum_weights_;
 
   ///* State dimension
   int n_x_;
@@ -66,6 +80,11 @@ public:
 
   ///* Sigma point spreading parameter
   double lambda_;
+  double spreading_coeff_;
+
+
+  // TODO: need this?
+  MatrixXd Tc_ = MatrixXd(n_x_, n_aug_);
 
 
   /**
@@ -89,7 +108,7 @@ public:
    * matrix
    * @param delta_t Time between k and k+1 in s
    */
-  void Prediction(double delta_t);
+  void Predict(double delta_t);
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
@@ -102,6 +121,24 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /**
+   * TODO: augment
+   */
+   void Augment();
+
+  /**
+   * TODO: sigma point prediction
+   */
+  void PredictSigmaPoints(double delta_t);
+
+  /**
+   * TODO: predict mean and covariance
+   */
+  void PredictMeanCovariance();
+
 };
+
+
 
 #endif /* UKF_H */
