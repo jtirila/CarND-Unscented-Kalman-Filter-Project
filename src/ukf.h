@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "tools.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -28,11 +29,17 @@ public:
   ///* state covariance matrix
   MatrixXd P_;
 
+  ///* TODO: augmented sigma points matrix
+  MatrixXd Xsig_aug_;
+
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
 
   ///* time when the state is true, in us
   long long time_us_;
+
+  ///* TODO: not needed?
+  double previous_timestamp_;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -55,8 +62,6 @@ public:
   ///* Radar measurement noise standard deviation radius change in m/s
   double std_radrd_ ;
 
-  ///* Weights of sigma points
-  VectorXd weights_;
 
   ///* State dimension
   int n_x_;
@@ -66,6 +71,14 @@ public:
 
   ///* Sigma point spreading parameter
   double lambda_;
+  double spreading_coeff_;
+
+  ///* Weights of sigma points
+  VectorXd weights_;
+
+  double sum_weights_;
+
+
 
 
   /**
@@ -89,19 +102,44 @@ public:
    * matrix
    * @param delta_t Time between k and k+1 in s
    */
-  void Prediction(double delta_t);
+  void Predict(double delta_t);
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  void Update(MeasurementPackage meas_package, Eigen::MatrixXd& Zsig, Eigen::MatrixXd& S, Eigen::VectorXd& z_pred, Eigen::MatrixXd& Tc);
+
 
   /**
-   * Updates the state and the state covariance matrix using a radar measurement
-   * @param meas_package The measurement at k+1
+   * TODO: augment
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+   void Augment();
+
+  /**
+   * TODO: sigma point prediction
+   */
+  void PredictSigmaPoints(double delta_t);
+
+  /**
+   * TODO: predict mean and covariance
+   */
+  void PredictMeanCovariance();
+
+  /*
+   * TODO
+   */
+  void PredictRadar(Eigen::MatrixXd& Zsig, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S);
+
+  void PredictLidar(Eigen::MatrixXd& Zsig, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S);
+
+  /*
+   * TODO
+   */
+  void PredictLidar();
+
 };
+
+
 
 #endif /* UKF_H */

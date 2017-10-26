@@ -1,29 +1,25 @@
-#ifndef TOOLS_H_
-#define TOOLS_H_
 #include <vector>
 #include "Eigen/Dense"
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-using namespace std;
 
-class Tools {
-public:
+namespace Tools {
   /**
-  * Constructor.
+  * A helper function to convert from polar to cartesian coordinates.
   */
-  Tools();
+  Eigen::VectorXd ConvertToCartesian(const Eigen::VectorXd &polar_coords);
 
   /**
-  * Destructor.
+  * A helper function to convert from cartesian to polar coordinates.
   */
-  virtual ~Tools();
+  Eigen::VectorXd ConvertToPolar(const Eigen::VectorXd &cart_coords);
 
   /**
   * A helper method to calculate RMSE.
   */
-  VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);
+  Eigen::VectorXd CalculateRMSE(const std::vector<Eigen::VectorXd> &estimations, const std::vector<Eigen::VectorXd> &ground_truth);
 
+  double NormalizeAngle(const double angle);
+
+  double Calculate_Nis(const Eigen::MatrixXd& S_inv, const Eigen::VectorXd& zdiff);
 };
 
-#endif /* TOOLS_H_ */
