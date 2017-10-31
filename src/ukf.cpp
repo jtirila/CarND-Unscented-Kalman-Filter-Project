@@ -27,48 +27,11 @@ UKF::UKF() {
   P_ = MatrixXd(n_x_, n_x_);
   P_.fill(0.0);
 
-   P_(0, 0) = 0.2;
-   // P_(0, 1) = 0.5;
-   // P_(0, 2) = 0.5;
-   // P_(0, 3) = 0.5;
-   // P_(0, 4) = 0.5;
-
-   P_(1, 1) = 0.2;
-   // P_(1, 0) = 0.5;
-   // P_(1, 2) = 0.5;
-   // P_(1, 3) = 0.5;
-   // P_(1, 4) = 0.5;
-
-   P_(2, 2) = 0.3;
-   // P_(2, 0) = 0.5;
-   // P_(2, 1) = 0.5;
-   // P_(2, 3) = 0.5;
-   // P_(2, 4) = 0.5;
-
-   P_(3, 3) = 0.4;
-   // P_(3, 0) = 0.5;
-   // P_(3, 1) = 0.5;
-   // P_(3, 2) = 0.5;
-   // P_(3, 4) = 0.5;
-
-   P_(4, 4) = 0.2;
-   // P_(4, 0) = 0.5;
-   // P_(4, 1) = 0.5;
-   // P_(4, 2) = 0.5;
-   // P_(4, 3) = 0.5;
-
-   P_ = 30 * P_;
-
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  // std_a_ = 3.5;
-
-  // Candidate: 3.4, 0.9
-  std_a_ = 2.8;
-  // std_a_ = 2.45;
+  std_a_ = 1.1;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1.18;
-  // std_yawdd_ = 1.28;
+  std_yawdd_ = 0.355;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -77,12 +40,10 @@ UKF::UKF() {
   std_laspy_ = 0.15;
 
   // Radar measurement noise standard deviation radius in m
-  // std_radr_ = 0.3;
-  std_radr_ = 0.7;
+  std_radr_ = 0.3;
 
   // Radar measurement noise standard deviation angle in rad
-  // std_radphi_ = 0.03;
-  std_radphi_ = 0.08;
+  std_radphi_ = 0.03;
 
   // Radar measurement noise standard deviation radius change in m/s
   std_radrd_ = 0.3;
@@ -105,15 +66,6 @@ UKF::UKF() {
   weights_.fill(1 / (2 * (lambda_ + n_aug_)));
   weights_(0) = lambda_ / (lambda_ + n_aug_);
   sum_weights_ = ((n_aug_ - 1) * weights_(1) + weights_(0));
-
-  /**
-  TODO:
-
-  Complete the initialization. See ukf.h for other member properties.
-
-
-  Hint: one or more values initialized above might be wildly off...
-  */
 
 }
 
@@ -157,17 +109,19 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
       Convert radar from polar to cartesian coordinates and initialize state.
       */
 
-
-      VectorXd cart_coord = Tools::ConvertToCartesian(measurement_pack.raw_measurements_);
+      Eigen::VectorXd cart_coord = Tools::ConvertToCartesian(measurement_pack.raw_measurements_);
 
       x_(0) = cart_coord(0);
       x_(1) = cart_coord(1);
-      // No need to set the rest.
+
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       x_(0) = measurement_pack.raw_measurements_(0);
       x_(1) = measurement_pack.raw_measurements_(1);
     }
+
+
+    P_ = P_.Identity(P_.rows(), P_.cols());
 
     previous_timestamp_ = measurement_pack.timestamp_;
     // done initializing, no need to predict or update
@@ -386,7 +340,6 @@ void UKF::PredictRadar(Eigen::MatrixXd& Zsig, Eigen::VectorXd& z_pred, Eigen::Ma
     py = Xsig_pred_(1, col);
     v = Xsig_pred_(2, col);
     phi = Xsig_pred_(3, col);
-    // phidot = Xsig_pred_(4, col);
 
     rho = std::sqrt(px * px + py * py);
     phi_meas = std::atan2(py, px);
@@ -408,7 +361,6 @@ void UKF::PredictRadar(Eigen::MatrixXd& Zsig, Eigen::VectorXd& z_pred, Eigen::Ma
     diff = Zsig.col(col) - z_pred;
 
     diff(1) = Tools::NormalizeAngle(diff(1));
-    // cout << "Well now diff: \n" <<  diff << "\n";
     S += weights_(col) * diff * diff.transpose();
 
   }
